@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArborGuard - Admin Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1b5e20;
+            --primary-light: #4caf50;
+            --secondary: #e8f5e9;
+            --text-dark: #333;
+            --text-gray: #666;
+            --bg-color: #f0f2f5;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+
+        /* KOTAK UTAMA */
+        .admin-container { 
+            width: 100%; max-width: 900px; background: var(--white); 
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            padding: 40px; overflow: hidden; position: relative;
+        }
+
+        /* LOGIN SCREEN */
+        #loginScreen { max-width: 450px; text-align: center; margin-top: 5vh; }
+        .login-icon { font-size: 3rem; color: var(--primary-light); margin-bottom: 15px; }
+        #loginScreen h2 { margin-bottom: 25px; color: var(--primary); font-weight: 600; }
+
+        /* DASHBOARD HEADER */
+        .header-admin { 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--secondary); padding-bottom: 20px; margin-bottom: 30px;
+        }
+        .header-admin h2 { color: var(--primary); display: flex; align-items: center; gap: 10px; font-size: 1.5rem; }
+
+        /* FORM KELOLA POHON */
+        .admin-box { 
+            background: #fafafa; border: 1px solid #eee; padding: 30px; 
+            border-radius: 15px; margin-bottom: 30px; transition: 0.3s;
+        }
+        .admin-box:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .admin-box h3 { margin-bottom: 20px; color: var(--primary); font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+
+        /* INPUT STYLES */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 0.85rem; color: var(--text-gray); margin-bottom: 5px; font-weight: 500; }
+        input[type="text"], input[type="password"], textarea { 
+            width: 100%; padding: 12px 15px; border: 1px solid #ddd; 
+            border-radius: 10px; outline: none; font-size: 0.95rem; transition: 0.3s;
+        }
+        input:focus, textarea:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1); }
+        
+        /* FILE INPUT CUSTOM */
+        input[type="file"] { 
+            width: 100%; padding: 10px; border: 2px dashed #ccc; border-radius: 10px; 
+            background: var(--white); cursor: pointer; color: var(--text-gray); font-size: 0.9rem;
+        }
+
+        /* BUTTONS */
+        .btn { 
+            padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; 
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
+            transition: all 0.3s ease; font-size: 0.95rem;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); width: 100%; box-shadow: 0 4px 10px rgba(27, 94, 32, 0.2); }
+        .btn-primary:hover { background: #144517; transform: translateY(-2px); }
+        
+        .btn-action { padding: 8px 15px; font-size: 0.85rem; border-radius: 8px; color: var(--white); }
+        .btn-edit { background: var(--warning); } .btn-edit:hover { background: #d68910; }
+        .btn-delete { background: var(--danger); } .btn-delete:hover { background: #c0392b; }
+        .btn-logout { background: #f8d7da; color: #721c24; } .btn-logout:hover { background: #f5c6cb; }
+        .btn-cancel { background: #e0e0e0; color: var(--text-dark); margin-left: 10px; display: none; }
+        .btn-cancel:hover { background: #d0d0d0; }
+
+        /* LIST POHON */
+        .list-header { font-size: 1.2rem; color: var(--primary); margin-bottom: 15px; font-weight: 600; }
+        .tree-list { display: flex; flex-direction: column; gap: 10px; }
+        .tree-list-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 20px; background: var(--white); border: 1px solid #eee; 
+            border-radius: 12px; transition: 0.2s;
+        }
+        .tree-list-item:hover { border-color: var(--primary-light); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .tree-info { display: flex; flex-direction: column; gap: 3px; }
+        .tree-name { font-weight: 600; color: var(--text-dark); font-size: 1.05rem; }
+        .tree-desc { font-size: 0.8rem; color: var(--text-gray); }
+        .action-group { display: flex; gap: 8px; }
+
+        @media(max-width: 600px) {
+            .tree-list-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .action-group { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container" id="loginScreen">
+    <i class="fas fa-shield-alt login-icon"></i>
+    <h2>Portal Admin Tertutup</h2>
+    <p style="color: var(--text-gray); margin-bottom: 25px; font-size: 0.9rem;">Masukan kredensial keamanan untuk mengelola database ArborGuard.</p>
+    
+    <div class="input-group">
+        <input type="password" id="adminPwd" placeholder="Password Admin">
+    </div>
+    <button class="btn btn-primary" onclick="login()"><i class="fas fa-sign-in-alt"></i> Otorisasi Akses</button>
+</div>
+
+<div class="admin-container" id="dashboardScreen" style="display: none;">
+    <div class="header-admin">
+        <h2><i class="fas fa-leaf"></i> ArborGuard Command Center</h2>
+        <button class="btn btn-action btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+    </div>
+
+    <div class="admin-box">
+        <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Publikasi Pohon Baru</h3>
+        <input type="hidden" id="editId">
+        
+        <div class="input-group">
+            <label>Nama Pohon (Sertakan nama latin jika ada)</label>
+            <input type="text" id="tName" placeholder="Contoh: Pohon Ulin (Eusideroxylon zwageri)">
+        </div>
+        
+        <div class="input-group">
+            <label>Deskripsi & Status Konservasi</label>
+            <textarea id="tDesc" rows="4" placeholder="Jelaskan karakteristik dan status perlindungannya..."></textarea>
+        </div>
+        
+        <div class="input-group" id="imageInputGroup">
+            <label>Unggah Gambar Resolusi Tinggi</label>
+            <input type="file" id="tImage" accept="image/*">
+        </div>
+        
+        <div style="display: flex; align-items: center; margin-top: 20px;">
+            <button class="btn btn-primary" style="width: auto;" id="saveBtn" onclick="saveTree()">
+                <i class="fas fa-cloud-upload-alt"></i> Simpan Data
+            </button>
+            <button class="btn btn-cancel" id="cancelBtn" onclick="cancelEdit()">
+                <i class="fas fa-times"></i> Batal Edit
+            </button>
+        </div>
+    </div>
+
+    <h3 class="list-header"><i class="fas fa-database"></i> Database Flora Terlindungi</h3>
+    <div class="tree-list" id="adminTreeList">
+        </div>
+</div>
+
+<script>
+    let token = localStorage.getItem('arbor_admin');
+    
+    if(token) showDashboard();
+
+    async function login() {
+        const pwd = document.getElementById('adminPwd').value;
+        const btn = document.querySelector('#loginScreen .btn-primary');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memverifikasi...';
+        
+        try {
+            const res = await fetch('/api/admin/login', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({password: pwd}) 
+            });
+            if(res.ok) { 
+                localStorage.setItem('arbor_admin', pwd); 
+                showDashboard(); 
+            } else { 
+                alert('Akses Ditolak: Password tidak valid!'); 
+            }
+        } catch (error) {
+            alert('Kesalahan jaringan.');
+        }
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Otorisasi Akses';
+    }
+
+    function logout() { localStorage.removeItem('arbor_admin'); location.reload(); }
+    
+    function showDashboard() { 
+        document.getElementById('loginScreen').style.display = 'none'; 
+        document.getElementById('dashboardScreen').style.display = 'block'; 
+        loadAdminTrees(); 
+    }
+
+    async function loadAdminTrees() {
+        const list = document.getElementById('adminTreeList');
+        list.innerHTML = '<div style="text-align:center; padding: 20px; color:#888;"><i class="fas fa-sync fa-spin"></i> Memuat database...</div>';
+        try {
+            // ANTI-CACHE: Memaksa mengambil data terbaru langsung dari database Neon
+            const res = await fetch('/api/trees', { cache: 'no-store' });
+            const trees = await res.json();
+            list.innerHTML = '';
+            trees.forEach(t => {
+                const shortDesc = t.description.length > 80 ? t.description.substring(0, 80) + '...' : t.description;
+                list.innerHTML += `
+                <div class="tree-list-item">
+                    <div class="tree-info">
+                        <div class="tree-name">${t.name}</div>
+                        <div class="tree-desc">${shortDesc}</div>
+                    </div>
+                    <div class="action-group">
+                        <button class="btn btn-action btn-edit" onclick="editTree(${t.id}, '${t.name.replace(/'/g, "\\'")}', '${t.description.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="deleteTree(${t.id})">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+                    </div>
+                </div>`;
+            });
+        } catch(e) {
+            list.innerHTML = '<div style="color:red; text-align:center;">Gagal memuat data.</div>';
+        }
+    }
+
+    async function saveTree() {
+        const id = document.getElementById('editId').value;
+        const name = document.getElementById('tName').value;
+        const desc = document.getElementById('tDesc').value;
+        const btn = document.getElementById('saveBtn');
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        btn.disabled = true;
+
+        try {
+            if(id) { 
+                await fetch(`/api/trees/${id}`, {
+                    method: 'PUT', 
+                    headers: {'Content-Type': 'application/json', 'Authorization': localStorage.getItem('arbor_admin')},
+                    body: JSON.stringify({name, description: desc})
+                });
+                alert('Data berhasil diperbarui!'); 
+                cancelEdit();
+            } else { 
+                const file = document.getElementById('tImage').files[0];
+                if(!file || !name) {
+                    alert('Lengkapi Nama dan Gambar Flora!');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+                const fd = new FormData(); 
+                fd.append('name', name); fd.append('description', desc); fd.append('image', file);
+                await fetch('/api/trees', { 
+                    method: 'POST', 
+                    headers: {'Authorization': localStorage.getItem('arbor_admin')}, 
+                    body: fd 
+                });
+                alert('Pohon berhasil ditambahkan ke database!');
+            }
+            
+            document.getElementById('tName').value = ''; 
+            document.getElementById('tDesc').value = ''; 
+            document.getElementById('tImage').value = '';
+            loadAdminTrees();
+        } catch(error) {
+            alert('Terjadi kesalahan saat menyimpan data.');
+        }
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+
+    function editTree(id, name, desc) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('formTitle').innerHTML = "<i class='fas fa-pen'></i> Perbarui Data Pohon";
+        document.getElementById('editId').value = id;
+        document.getElementById('tName').value = name;
+        document.getElementById('tDesc').value = desc;
+        document.getElementById('imageInputGroup').style.display = 'none';
+        document.getElementById('cancelBtn').style.display = 'inline-flex';
+        document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Update Data';
+    }
+
+    function cancelEdit() {
+        document.getElementById('formTitle').innerHTML = "<i class='fas fa-plus-circle'></i> Publikasi Pohon Baru";
+        document.getElementById('editId').value = '';
+        document.getElementById('tName').value = '';
+        document.getElementById('tDesc').value = '';
+        document.getElementById('imageInputGroup').style.display = 'block';
+        document.getElementById('cancelBtn').style.display = 'none';
+        document.getElementById('saveBtn').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Simpan Data';
+    }
+
+    async function deleteTree(id) {
+        if(confirm('Tindakan ini tidak dapat dibatalkan. Yakin ingin menghapus data flora ini?')) {
+            try {
+                // Proses pengiriman perintah hapus ke server
+                const res = await fetch(`/api/trees/${id}`, { 
+                    method: 'DELETE', 
+                    headers: {'Authorization': localStorage.getItem('arbor_admin')} 
+                });
+                
+                // Cek respon dari server
+                const data = await res.json();
+                
+                if(data.success) {
+                    alert('SUKSES: Data pohon telah dihapus secara permanen dari database.');
+                    loadAdminTrees(); // Muat ulang tanpa perlu refresh browser
+                } else {
+                    alert('GAGAL: ' + (data.error || 'Server menolak permintaan.'));
+                }
+            } catch (error) {
+                alert('ERROR JARINGAN: Tidak dapat terhubung ke server.');
+            }
+        }
+    }
+</script>
+</body>
+</html>
