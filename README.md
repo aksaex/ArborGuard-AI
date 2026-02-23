@@ -37,3 +37,25 @@ Built with a mobile-first approach, the application features a modern, App-like 
 * **Secure Portal:** Password-protected admin login system via environment variables.
 * **CRUD Tree Management:** Admins can effortlessly Post (with high-res image uploads), Edit, and Delete protected tree data.
 * **Real-time Synchronization:** Built-in Vercel Anti-Cache headers ensure that any database modifications are instantly reflected on the public gallery without manual refreshing.
+
+## 📸 Screenshots
+
+**MOBILE**
+![Mobile 1]({![Screenshot_2026-02-23-13-49-36-81_40deb401b9ffe8e1df2f1cc5ba480b12 jpg](https://github.com/user-attachments/assets/6237bc09-74bf-4dd8-9c2d-8f4eccc24afa)
+}) | ![Mobile 2]({![Screenshot_2026-02-23-13-49-33-24_40deb401b9ffe8e1df2f1cc5ba480b12 jpg](https://github.com/user-attachments/assets/ffce8ece-756b-4dbe-9898-5c283008637a)
+}) | ![Mobile 3]({![Screenshot_2026-02-23-13-49-23-08_40deb401b9ffe8e1df2f1cc5ba480b12 jpg](https://github.com/user-attachments/assets/9247b912-aa32-492d-ab20-e9b7601668bd)
+})
+![Mobile 4]({![Screenshot_2026-02-23-13-49-48-69_40deb401b9ffe8e1df2f1cc5ba480b12 jpg](https://github.com/user-attachments/assets/422fed26-2e15-44bf-97ac-70073c184a25)
+}) | ![Mobile 5]({![Screenshot_2026-02-23-13-50-01-17_40deb401b9ffe8e1df2f1cc5ba480b12 jpg](https://github.com/user-attachments/assets/868a2bf7-d7f8-4607-ba5e-77adc51e98cc)
+}) | ![Mobile 6]({![Screenshot_2026-02-23-13-50-20-63_40deb401b9ffe8e1df2f1cc5ba480b12 jpg](https://github.com/user-attachments/assets/be1fd6f7-a3aa-4d38-b42a-d61e6f537ca9)
+})
+
+**DESKTOP**
+![Chat AI Desktop]({<img width="1920" height="1080" alt="{E9815004-CD49-4672-8A50-D420F52C1C74}" src="https://github.com/user-attachments/assets/d58494ea-4d0d-4f34-923b-db6ad37ead7d" />
+})
+
+## 🚀 Live Demo
+**Website:** [https://arbor-guard-ai.vercel.app/](https://arbor-guard-ai.vercel.app/)
+
+---
+*Developed with ❤️ by aksaex for Hacktiv8 Maju Bareng AI.*
