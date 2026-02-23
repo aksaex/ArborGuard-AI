@@ -4,203 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ArborGuard AI - Smart Botany</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        arbor: {
+                            light: '#e8f5e9',
+                            DEFAULT: '#4caf50',
+                            dark: '#1b5e20',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* =========================================
-           FIX UI/UX: ANTI-GAP BAWAH & MOBILE SCROLLING
-           ========================================= */
-        html, body {
-            height: 100dvh !important; /* dVH = Dynamic Viewport Height */
-            background-color: #ffffff !important; /* Kunci agar tidak ada warna hijau yg bocor di bawah */
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-        }
+        /* CSS Murni HANYA untuk elemen dinamis dari JS agar tidak rusak */
+        body { font-family: 'Segoe UI', system-ui, sans-serif; }
+        .slide { display: none; }
+        .slide.active { display: flex; animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .slide { 
-            /* Sisakan ruang untuk navbar bawah + area aman notch HP */
-            height: calc(100dvh - 60px - env(safe-area-inset-bottom)) !important; 
-            overflow-y: auto;
-            background: white;
-        }
+        /* Styling Chat Bubble hasil generate JS */
+        .message { display: flex; gap: 10px; max-width: 90%; margin-bottom: 15px; }
+        .user-message { align-self: flex-end; flex-direction: row-reverse; }
+        .message .text { padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .bot-message .text { background: white; border: 1px solid #e5e7eb; border-top-left-radius: 4px; color: #1f2937; line-height: 1.5; }
+        .user-message .text { background: #1b5e20; color: white; border-top-right-radius: 4px; line-height: 1.5; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; }
+        .bot-message .avatar { background: #1b5e20; }
+        .user-message .avatar { background: #4caf50; }
 
-        .bottom-nav {
-            position: fixed;
-            bottom: 0 !important;
-            left: 0;
-            width: 100%;
-            height: calc(60px + env(safe-area-inset-bottom)) !important;
-            padding-bottom: env(safe-area-inset-bottom); /* Tutup celah bawah HP modern */
-            background: #ffffff !important;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.05) !important; /* Pertegas batas navbar */
-            z-index: 1000;
-        }
-
-        /* WATERMARK KEPEMILIKAN */
-        .watermark-footer {
-            position: absolute;
-            bottom: 30px;
-            width: 100%;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem;
-            font-weight: 400;
-            letter-spacing: 1.5px;
-            z-index: 10;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .watermark-footer span { font-weight: 700; color: #69f0ae; }
-
-        /* QUICK PROMPTS (SCROLLABLE DI HP) */
-        .quick-prompts-container {
-            display: flex; gap: 10px; margin-bottom: 15px; 
-            overflow-x: auto; padding-bottom: 5px; scroll-behavior: smooth;
-            -ms-overflow-style: none; scrollbar-width: none;
-        }
-        .quick-prompts-container::-webkit-scrollbar { display: none; }
-        
-        .prompt-btn {
-            white-space: nowrap; padding: 8px 15px; border-radius: 20px;
-            border: 1px solid #c8e6c9; background: #f1f8e9; color: #2e7d32;
-            cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-        .prompt-btn:hover { background: #c8e6c9; transform: translateY(-2px); }
-
-        /* IMAGE PREVIEW MELAYANG */
-        #imagePreviewContainer {
-            position: relative; display: inline-block; margin-bottom: 10px;
-            animation: popIn 0.3s ease-out;
-        }
-        #imagePreview {
-            max-height: 80px; border-radius: 12px; border: 2px solid #4caf50;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit: cover;
-        }
-        .btn-remove-img {
-            position: absolute; top: -10px; right: -10px;
-            background: #e74c3c; color: white; border: none; width: 26px; height: 26px;
-            border-radius: 50%; cursor: pointer; font-size: 0.8rem;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;
-        }
-        .btn-remove-img:hover { background: #c0392b; transform: scale(1.1); }
-
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        /* Sembunyikan Scrollbar tapi tetap bisa scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
-    <section id="slide-home" class="slide active">
-        <div class="hero" style="background: url('gambar.png') center/cover no-repeat;">
-            <div class="hero-overlay"></div>
-            <div class="hero-content blur-box">
-                <i class="fas fa-leaf hero-icon"></i>
-                <h1>ArborGuard <span>AI</span></h1>
-                <p class="tagline">Konsultan Botani & Edukator Konservasi Pohon Indonesia.</p>
-                <div class="divider"></div>
-                <button class="btn-glow" onclick="switchTab('slide-trees')">Jelajahi Pohon <i class="fas fa-arrow-right" style="margin-left: 5px;"></i></button>
-            </div>
-            <div class="watermark-footer">
-                ArborGuard AI By <span>aksaex</span>
-            </div>
-        </div>
-    </section>
+<body class="bg-gray-50 h-[100dvh] w-full overflow-hidden flex flex-col text-gray-800 antialiased">
 
-    <section id="slide-trees" class="slide">
-        <div class="header-top">
-            <h2>Pohon Dilindungi</h2>
-        </div>
-        <div class="trees-container" id="treesContainer">
-            <div class="loading">Memuat ekosistem hutan...</div>
-        </div>
-    </section>
-
-    <section id="slide-chat" class="slide" style="display: flex; flex-direction: column;">
-        <div class="header-top">
-            <h2>Tanya ArborGuard</h2>
-        </div>
+    <main class="flex-1 relative w-full overflow-hidden bg-gray-50">
         
-        <div class="smart-env-widget" id="envWidget">
-            <div class="env-input-group">
-                <i class="fas fa-map-marker-alt text-green"></i>
-                <input type="text" id="cityOverride" placeholder="Ketik Kota (ex: Toraja) atau klik GPS" class="location-input">
-                <button class="btn-gps" onclick="activateSmartLocation()" id="btnLokasi" title="Gunakan GPS Otomatis">
-                    <i class="fas fa-crosshairs"></i>
-                </button>
+        <section id="slide-home" class="slide active absolute inset-0 w-full h-full flex-col">
+            <img src="gambar.png" alt="ArborGuard Background" class="absolute inset-0 w-full h-full object-cover z-0" fetchpriority="high">
+            <div class="absolute inset-0 bg-gradient-to-b from-arbor-dark/80 to-arbor-dark/95 z-0"></div>
+            
+            <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
+                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-[90%] sm:max-w-sm transform transition hover:scale-[1.02]">
+                    <i class="fas fa-leaf text-5xl text-green-300 mb-4 animate-[bounce_3s_infinite]"></i>
+                    <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">ArborGuard <span class="text-green-300">AI</span></h1>
+                    <p class="text-green-50 text-sm sm:text-base mb-6 leading-relaxed">Konsultan Botani & Edukator Konservasi Pohon Indonesia.</p>
+                    <button onclick="switchTab('slide-trees')" class="bg-gradient-to-r from-arbor-dark to-arbor text-white font-semibold py-3 sm:py-4 px-6 rounded-full w-full shadow-lg transform transition active:scale-95 hover:shadow-green-500/30 flex justify-center items-center gap-2">
+                        Jelajahi Pohon <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <p class="absolute bottom-6 text-white/50 text-xs tracking-widest">ArborGuard AI By <span class="text-green-300 font-bold">aksaex</span></p>
             </div>
-        </div>
+        </section>
 
-        <div class="chat-room" id="chatRoom" style="flex: 1; overflow-y: auto;">
-            <div class="message bot-message">
-                <div class="avatar"><i class="fas fa-robot"></i></div>
-                <div class="text">Halo! Saya ArborGuard. Ceritakan kondisi pohonmu atau unggah gambarnya! Aktifkan Lokasi di atas agar analisaku lebih akurat. 🌱</div>
-            </div>
-        </div>
+        <section id="slide-trees" class="slide absolute inset-0 w-full h-full flex-col">
+            <header class="bg-arbor-dark text-white p-4 shadow-md shrink-0 z-20">
+                <h2 class="text-center font-semibold text-lg tracking-wide">Pohon Dilindungi</h2>
+            </header>
+            
+            <div class="flex-1 overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pb-6" id="treesContainer">
+                </div>
+        </section>
 
-        <div class="input-section" style="padding-bottom: 20px;">
-            <div class="quick-prompts-container">
-                <button class="prompt-btn" onclick="sendQuickPrompt('Cek gejala penyakit daun menguning dan rontok')"><i class="fas fa-search-plus"></i> Cek Gejala</button>
-                <button class="prompt-btn" onclick="sendQuickPrompt('Apa saja regulasi pohon terlindungi di Indonesia?')"><i class="fas fa-book-open"></i> Info Regulasi</button>
-                <button class="prompt-btn" onclick="sendQuickPrompt('Berikan tips perawatan pohon saat musim kemarau')"><i class="fas fa-sun"></i> Tips Kemarau</button>
-            </div>
-
-            <div style="display: none;" id="imagePreviewContainerWrapper">
-                <div id="imagePreviewContainer">
-                    <img id="imagePreview" src="" alt="Preview Gambar">
-                    <button class="btn-remove-img" onclick="removeImage()" aria-label="Hapus Gambar"><i class="fas fa-times"></i></button>
+        <section id="slide-chat" class="slide absolute inset-0 w-full h-full flex-col bg-gray-50">
+            <header class="bg-arbor-dark text-white p-4 shadow-md shrink-0 z-20">
+                <h2 class="text-center font-semibold text-lg tracking-wide">Tanya ArborGuard</h2>
+            </header>
+            
+            <div class="bg-arbor-light p-3 border-b border-green-200 shrink-0 z-10 shadow-sm">
+                <div class="flex items-center bg-white rounded-full px-4 py-1.5 border border-gray-300 focus-within:border-arbor focus-within:ring-2 focus-within:ring-green-100 transition-all">
+                    <i class="fas fa-map-marker-alt text-arbor-dark mr-2"></i>
+                    <input type="text" id="cityOverride" placeholder="Ketik Kota (ex: Bulukumba)" class="flex-1 min-w-0 bg-transparent border-none outline-none text-sm py-1" onkeypress="handleCityEnter(event)">
+                    <div class="w-px h-5 bg-gray-300 mx-2"></div>
+                    <button class="shrink-0 text-arbor-dark hover:text-arbor font-bold p-1 transition" onclick="activateSmartLocation()" id="btnLokasi">
+                        <i class="fas fa-crosshairs text-lg"></i>
+                    </button>
                 </div>
             </div>
-            
-            <div class="input-box">
-                <label for="fileInput" class="upload-btn" title="Unggah Gambar Pohon">
-                    <i class="fas fa-camera"></i>
-                </label>
-                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewImage(event)">
-                <input type="text" id="userInput" placeholder="Ketik pesan atau tanya soal gambar..." onkeypress="handleKeyPress(event)">
-                <button id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </section>
 
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('slide-home', this)">
-            <i class="fas fa-home"></i><span>Home</span>
+            <div class="flex-1 overflow-y-auto p-4 pb-2 flex flex-col" id="chatRoom">
+                <div class="message bot-message">
+                    <div class="avatar"><i class="fas fa-robot"></i></div>
+                    <div class="text">Halo! Saya ArborGuard. Ceritakan kondisi pohonmu atau unggah gambarnya! Aktifkan Lokasi di atas agar analisaku lebih akurat. 🌱</div>
+                </div>
+            </div>
+
+            <div class="bg-white border-t border-gray-200 p-3 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] shrink-0 z-30 relative">
+                <div class="flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-1">
+                    <button class="shrink-0 bg-green-50 text-arbor-dark border border-green-200 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-green-100 transition" onclick="sendQuickPrompt('Cek gejala penyakit daun menguning')"><i class="fas fa-search-plus"></i> Cek Gejala</button>
+                    <button class="shrink-0 bg-green-50 text-arbor-dark border border-green-200 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-green-100 transition" onclick="sendQuickPrompt('Apa regulasi pohon terlindungi?')"><i class="fas fa-book-open"></i> Info Regulasi</button>
+                    <button class="shrink-0 bg-green-50 text-arbor-dark border border-green-200 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-green-100 transition" onclick="sendQuickPrompt('Tips perawatan musim kemarau')"><i class="fas fa-sun"></i> Tips Kemarau</button>
+                </div>
+
+                <div id="imagePreviewContainerWrapper" class="hidden mb-2 relative inline-block">
+                    <img id="imagePreview" src="" class="h-16 rounded-lg border-2 border-arbor object-cover shadow-sm">
+                    <button class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-md" onclick="removeImage()"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="flex gap-2 items-center">
+                    <label for="fileInput" class="bg-arbor-dark text-white w-11 h-11 rounded-full flex items-center justify-center cursor-pointer shrink-0 shadow-md active:scale-95 transition">
+                        <i class="fas fa-camera text-lg"></i>
+                    </label>
+                    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="previewImage(event)">
+                    <input type="text" id="userInput" placeholder="Ketik pesan..." class="flex-1 min-w-0 bg-gray-100 border border-gray-300 rounded-full px-4 py-2.5 outline-none focus:ring-2 focus:ring-green-200 focus:bg-white transition text-sm" onkeypress="handleKeyPress(event)">
+                    <button id="sendBtn" onclick="sendMessage()" class="bg-arbor-dark text-white w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-md active:scale-95 transition">
+                        <i class="fas fa-paper-plane text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <nav class="shrink-0 w-full bg-white h-[calc(4rem+env(safe-area-inset-bottom))] border-t border-gray-100 flex justify-around items-center pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50">
+        <button class="nav-item active flex flex-col items-center gap-1 text-gray-400 hover:text-arbor transition w-16" onclick="switchTab('slide-home', this)">
+            <i class="fas fa-home text-xl"></i><span class="text-[10px] font-medium">Home</span>
         </button>
-        <button class="nav-item" onclick="switchTab('slide-trees', this)">
-            <i class="fas fa-tree"></i><span>Pohon</span>
+        <button class="nav-item flex flex-col items-center gap-1 text-gray-400 hover:text-arbor transition w-16" onclick="switchTab('slide-trees', this)">
+            <i class="fas fa-tree text-xl"></i><span class="text-[10px] font-medium">Pohon</span>
         </button>
-        <button class="nav-item" onclick="switchTab('slide-chat', this)">
-            <i class="fas fa-comment-dots"></i><span>Chat AI</span>
+        <button class="nav-item flex flex-col items-center gap-1 text-gray-400 hover:text-arbor transition w-16" onclick="switchTab('slide-chat', this)">
+            <i class="fas fa-comment-dots text-xl"></i><span class="text-[10px] font-medium">Chat AI</span>
         </button>
     </nav>
 
-    <input type="hidden" id="systemPrompt" value="Kamu adalah ArborGuard, Konsultan Botani. Analisis gambar pohon yang dikirim. Tentukan apakah statusnya: SEHAT, PERLU PERAWATAN, atau KRITIS. Berikan langkah penanganan (bullet points).">
+    <input type="hidden" id="systemPrompt" value="Kamu adalah ArborGuard, Konsultan Botani. Analisis gambar pohon. Tentukan statusnya: SEHAT, PERLU PERAWATAN, atau KRITIS. Berikan penanganan.">
 
-    <script src="script.js"></script>
-    
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/location.js"></script>
+    <script src="js/chat.js"></script>
+
     <script>
-        // 1. Fungsi untuk Quick Prompts (Penting agar tombol pintasan berfungsi!)
-        function sendQuickPrompt(text) {
-            document.getElementById('userInput').value = text;
-            sendMessage(); // Memanggil fungsi sendMessage yang ada di script.js
-        }
-
-        // 2. Override UI untuk Gambar
-        const originalRemoveImage = removeImage;
-        removeImage = function() {
-            if(typeof originalRemoveImage === 'function') originalRemoveImage();
-            document.getElementById('imagePreviewContainerWrapper').style.display = 'none';
-        };
-
-        const originalPreviewImage = previewImage;
-        previewImage = function(event) {
-            if(typeof originalPreviewImage === 'function') originalPreviewImage(event);
-            document.getElementById('imagePreviewContainerWrapper').style.display = 'block';
-        };
+        document.head.insertAdjacentHTML("beforeend", `<style>
+            .nav-item.active { color: #1b5e20; font-weight: bold; }
+            .nav-item.active i { transform: translateY(-3px); }
+        </style>`);
     </script>
 </body>
 </html>

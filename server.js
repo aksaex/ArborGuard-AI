@@ -119,6 +119,12 @@ app.post('/api/admin/login', (req, res) => {
 
 // GET: Ambil semua daftar pohon (Untuk Publik & Admin)
 app.get('/api/trees', async (req, res) => {
+    // 🔥 PERINTAH MUTLAK ANTI-CACHE UNTUK VERCEL CDN 🔥
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Surrogate-Control', 'no-store');
+    res.setHeader('Expires', '0');
+
     try {
         const result = await pool.query('SELECT * FROM protected_trees ORDER BY id DESC');
         res.json(result.rows);
