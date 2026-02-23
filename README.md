@@ -55,9 +55,9 @@ Built with a mobile-first approach, the application features a modern, App-like 
   </tr>
 </table>
 
+
 **DESKTOP**
-![Chat AI Desktop]({<img width="1920" height="1080" alt="{E9815004-CD49-4672-8A50-D420F52C1C74}" src="https://github.com/user-attachments/assets/d58494ea-4d0d-4f34-923b-db6ad37ead7d" />
-})
+![Chat AI Desktop]({<img width="1920" height="1080" alt="{E9815004-CD49-4672-8A50-D420F52C1C74}" src="https://github.com/user-attachments/assets/d58494ea-4d0d-4f34-923b-db6ad37ead7d" />})
 
 ## 🚀 Live Demo
 **Website:** [https://arbor-guard-ai.vercel.app/](https://arbor-guard-ai.vercel.app/)
